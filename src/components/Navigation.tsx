@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { Menu, Shield, AlertTriangle, FileText, MessageCircle, Search } from "lucide-react";
+import { Menu, Shield, AlertTriangle, FileText, MessageCircle, Search, Bell } from "lucide-react";
+import AlertsDropdown from "./AlertsDropdown";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ const Navigation = () => {
     { name: "Link Checker", href: "/link-checker", icon: Search },
     { name: "Report Incident", href: "/report", icon: AlertTriangle },
     { name: "My Cases", href: "/cases", icon: FileText },
+    { name: "Crime Alerts", href: "/crime-alerts", icon: Bell },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Help Chat", href: "/chat", icon: MessageCircle },
   ];
@@ -51,6 +53,7 @@ const Navigation = () => {
                 </Link>
               );
             })}
+            <AlertsDropdown />
           </div>
 
           {/* Mobile Navigation */}

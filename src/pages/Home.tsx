@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Search, AlertTriangle, FileText, MessageCircle, TrendingUp } from "lucide-react";
+import { Shield, Search, AlertTriangle, FileText, MessageCircle, TrendingUp, Bell, MapPin } from "lucide-react";
+import { useAlerts } from "@/contexts/AlertContext";
 import heroImage from "@/assets/hero-cybersecurity.jpg";
 
 const Home = () => {
+  const { alerts, unreadCount } = useAlerts();
+  
   const features = [
     {
       icon: Search,
@@ -26,6 +29,13 @@ const Home = () => {
       description: "Monitor the status of your reported incidents and receive updates on investigations.",
       href: "/cases",
       color: "text-success"
+    },
+    {
+      icon: Bell,
+      title: "Crime Alerts",
+      description: "Get real-time alerts about crime and safety incidents in your area.",
+      href: "/crime-alerts",
+      color: "text-warning"
     },
     {
       icon: MessageCircle,
@@ -93,6 +103,44 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Recent Alerts Section */}
+      {alerts.length > 0 && (
+        <section className="py-16 bg-card">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="border-l-4 border-l-warning">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-warning" />
+                  Recent Safety Alerts ({unreadCount} new)
+                </CardTitle>
+                <CardDescription>
+                  Latest crime and safety alerts in your area
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {alerts.slice(0, 2).map((alert) => (
+                    <div key={alert.id} className="flex items-start gap-3 p-3 bg-accent/50 rounded-lg">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{alert.title}</p>
+                        <p className="text-xs text-muted-foreground">{alert.message}</p>
+                        {alert.location && (
+                          <p className="text-xs text-muted-foreground mt-1">📍 {alert.location}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button asChild className="w-full mt-4" variant="outline">
+                  <Link to="/crime-alerts">View All Alerts</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="py-20 bg-background">
