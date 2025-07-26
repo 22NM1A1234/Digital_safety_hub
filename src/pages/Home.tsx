@@ -68,7 +68,7 @@ const Home = () => {
               <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
                 <Link to="/link-checker">Check Suspicious Link</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+              <Button asChild variant="hero" size="lg">
                 <Link to="/report">Report Incident</Link>
               </Button>
             </div>
