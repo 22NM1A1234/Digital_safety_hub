@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing } from "lucide-react";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useGeofencing } from "@/hooks/useGeofencing";
+import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield } from "lucide-react";
 
 interface CrimeAlert {
   id: string;
@@ -24,12 +26,20 @@ interface CrimeStats {
 }
 
 const CrimeAlerts = () => {
-  const [location, setLocation] = useState<string>("");
   const [alerts, setAlerts] = useState<CrimeAlert[]>([]);
   const [stats, setStats] = useState<CrimeStats | null>(null);
-  const [loading, setLoading] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const { toast } = useToast();
+  const { latitude, longitude, error: locationError } = useGeolocation({ enableHighAccuracy: true });
+  const { 
+    currentLocation, 
+    crimeAreas, 
+    activeAlerts: geofenceAlerts, 
+    nearbyAreas, 
+    locationError: geofenceError,
+    requestNotificationPermission,
+    isInCrimeArea 
+  } = useGeofencing();
 
   // Mock crime data - in real app, this would come from crime APIs
   const mockAlerts: CrimeAlert[] = [
@@ -70,25 +80,8 @@ const CrimeAlerts = () => {
   };
 
   useEffect(() => {
-    // Get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation("Current Location");
-          setAlerts(mockAlerts);
-          setStats(mockStats);
-        },
-        (error) => {
-          setLocation("Location Access Denied");
-          setAlerts(mockAlerts);
-          setStats(mockStats);
-        }
-      );
-    } else {
-      setLocation("Location Not Supported");
-      setAlerts(mockAlerts);
-      setStats(mockStats);
-    }
+    setAlerts(mockAlerts);
+    setStats(mockStats);
   }, []);
 
   const getSeverityColor = (severity: string) => {
@@ -111,16 +104,26 @@ const CrimeAlerts = () => {
   };
 
   const enableNotifications = async () => {
-    if ("Notification" in window) {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        setNotificationsEnabled(true);
-        toast({
-          title: "Notifications Enabled",
-          description: "You'll receive alerts about crime activity in your area.",
-        });
-      }
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      setNotificationsEnabled(true);
+      toast({
+        title: "Notifications Enabled",
+        description: "You'll receive real-time alerts when entering high-crime areas.",
+      });
+    } else {
+      toast({
+        title: "Notification Permission Denied",
+        description: "Please enable notifications in your browser settings for real-time alerts.",
+        variant: "destructive"
+      });
     }
+  };
+
+  const getLocationString = () => {
+    if (locationError) return "Location Access Denied";
+    if (!latitude || !longitude) return "Getting location...";
+    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -157,10 +160,16 @@ const CrimeAlerts = () => {
               <MapPin className="h-4 w-4 ml-auto text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{location}</div>
+              <div className="text-2xl font-bold">{getLocationString()}</div>
               <p className="text-xs text-muted-foreground">
                 Last updated: {new Date().toLocaleTimeString()}
               </p>
+              {isInCrimeArea && (
+                <div className="flex items-center gap-1 mt-2">
+                  <Shield className="h-3 w-3 text-destructive" />
+                  <span className="text-xs text-destructive font-medium">In High-Risk Area</span>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -215,9 +224,78 @@ const CrimeAlerts = () => {
           </Card>
         )}
 
+        {/* Geofence Alerts */}
+        {geofenceAlerts.length > 0 && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardHeader>
+              <CardTitle className="text-destructive flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Active Location Alerts
+              </CardTitle>
+              <CardDescription>
+                You are currently in or near high-crime areas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {geofenceAlerts.map((alert) => (
+                  <div key={alert.areaId} className="p-3 bg-background rounded-lg border">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-semibold">{alert.areaName}</h4>
+                        <p className="text-sm text-muted-foreground">{alert.crimeType}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Distance: {alert.distance}m • Entered: {new Date(alert.enteredAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <Badge variant="destructive">{alert.severity.toUpperCase()}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Nearby Crime Areas */}
+        {nearbyAreas.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Nearby Crime Areas</CardTitle>
+              <CardDescription>
+                High-risk areas within 1km of your location
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {nearbyAreas.map((area) => (
+                  <div key={area.id} className="p-3 border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-semibold">{area.name}</h4>
+                        <p className="text-sm text-muted-foreground">{area.description}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <Navigation className="h-3 w-3" />
+                          {Math.round(area.distance)}m away
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={getSeverityColor(area.severity)}>
+                          {area.severity.toUpperCase()}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground mt-1">{area.crimeType}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Active Alerts */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">Active Alerts</h2>
+          <h2 className="text-2xl font-semibold">Regional Crime Alerts</h2>
           
           {alerts.length === 0 ? (
             <Alert>

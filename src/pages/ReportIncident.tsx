@@ -52,10 +52,33 @@ const ReportIncident = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const caseId = `DSH-${Date.now().toString(36).toUpperCase()}`;
+      const userId = formData.anonymous ? 'ANONYMOUS' : `USER${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+      
+      // Store report summary (in real app, this would be API call)
+      const reportSummary = {
+        id: Date.now().toString(),
+        userId,
+        caseId,
+        type: formData.incidentType,
+        urgency: formData.urgency,
+        status: 'pending',
+        description: formData.description,
+        location: 'Current Location',
+        timestamp: new Date().toISOString(),
+        contactEmail: formData.contactEmail,
+        contactPhone: formData.contactPhone,
+        occurredAt: formData.occurredAt,
+        anonymous: formData.anonymous
+      };
+
+      // Save to localStorage for demo (in real app, this would be database)
+      const existingReports = JSON.parse(localStorage.getItem('userReports') || '[]');
+      existingReports.push(reportSummary);
+      localStorage.setItem('userReports', JSON.stringify(existingReports));
       
       toast({
         title: "Report Submitted Successfully",
-        description: `Your case ID is ${caseId}. We'll contact you within 24 hours.`,
+        description: `Your case ID is ${caseId}. User ID: ${userId}. Track your report in Admin Dashboard.`,
       });
 
       // Reset form

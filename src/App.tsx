@@ -10,6 +10,7 @@ import LinkChecker from "./pages/LinkChecker";
 import ReportIncident from "./pages/ReportIncident";
 import Cases from "./pages/Cases";
 import CrimeAlerts from "./pages/CrimeAlerts";
+import AdminDashboard from "./pages/AdminDashboard";
 import Resources from "./pages/Resources";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/report" element={<ReportIncident />} />
             <Route path="/cases" element={<Cases />} />
             <Route path="/crime-alerts" element={<CrimeAlerts />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="*" element={<NotFound />} />
