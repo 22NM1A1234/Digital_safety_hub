@@ -17,7 +17,7 @@ const Navigation = () => {
     { name: "Crime Alerts", href: "/crime-alerts", icon: Bell },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Help Chat", href: "/chat", icon: MessageCircle },
-    { name: "Admin", href: "/admin", icon: Shield },
+    { name: "User Dashboard", href: "/admin", icon: Shield },
   ];
 
   const isActive = (path: string) => location.pathname === path;
