@@ -138,18 +138,18 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Admin Dashboard
+            User Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
-            Monitor and manage incident reports and user tracking
+            Track your incident reports and view your case status
           </p>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="tracking">Report Tracking</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="overview">My Reports</TabsTrigger>
+            <TabsTrigger value="tracking">Track My Cases</TabsTrigger>
+            <TabsTrigger value="analytics">My Activity</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -157,23 +157,23 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
+                  <CardTitle className="text-sm font-medium">My Reports</CardTitle>
                   <AlertTriangle className="h-4 w-4 ml-auto text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{summary?.totalReports || 0}</div>
-                  <p className="text-xs text-muted-foreground">All time reports</p>
+                  <p className="text-xs text-muted-foreground">Total reports submitted</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                  <CardTitle className="text-sm font-medium">In Progress</CardTitle>
                   <Clock className="h-4 w-4 ml-auto text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-destructive">{summary?.pendingReports || 0}</div>
-                  <p className="text-xs text-muted-foreground">Awaiting action</p>
+                  <p className="text-xs text-muted-foreground">Under investigation</p>
                 </CardContent>
               </Card>
 
@@ -184,18 +184,18 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">{summary?.resolvedReports || 0}</div>
-                  <p className="text-xs text-muted-foreground">Successfully closed</p>
+                  <p className="text-xs text-muted-foreground">Cases closed</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Critical</CardTitle>
+                  <CardTitle className="text-sm font-medium">High Priority</CardTitle>
                   <AlertTriangle className="h-4 w-4 ml-auto text-destructive" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-destructive">{summary?.criticalReports || 0}</div>
-                  <p className="text-xs text-muted-foreground">High priority cases</p>
+                  <p className="text-xs text-muted-foreground">Urgent cases</p>
                 </CardContent>
               </Card>
             </div>
@@ -203,8 +203,8 @@ const AdminDashboard = () => {
             {/* Recent Reports */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Reports</CardTitle>
-                <CardDescription>Latest incident reports submitted to the system</CardDescription>
+                <CardTitle>My Recent Reports</CardTitle>
+                <CardDescription>Your latest incident reports and their current status</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -250,8 +250,8 @@ const AdminDashboard = () => {
             {/* Search Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Report Tracking</CardTitle>
-                <CardDescription>Search reports by User ID or Case ID to track complaint status</CardDescription>
+                <CardTitle>Track My Cases</CardTitle>
+                <CardDescription>Search your reports by User ID or Case ID to view status updates</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
@@ -332,13 +332,13 @@ const AdminDashboard = () => {
                           )}
                           <div className="flex gap-2 mt-4">
                             <Button size="sm" variant="outline">
-                              Update Status
+                              View Details
                             </Button>
                             <Button size="sm" variant="outline">
-                              Add Notes
+                              Add Update
                             </Button>
                             <Button size="sm" variant="outline">
-                              Contact User
+                              Contact Support
                             </Button>
                           </div>
                         </div>
@@ -353,14 +353,14 @@ const AdminDashboard = () => {
           <TabsContent value="analytics" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Analytics Dashboard</CardTitle>
-                <CardDescription>Comprehensive report analytics and insights</CardDescription>
+                <CardTitle>My Activity</CardTitle>
+                <CardDescription>Your personal activity summary and report history</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
+                  <p className="text-muted-foreground">Personal activity dashboard coming soon...</p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    This will include charts, trends, and detailed analytics
+                    This will include your report history, trends, and personal insights
                   </p>
                 </div>
               </CardContent>
