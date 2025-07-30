@@ -293,57 +293,6 @@ const CrimeAlerts = () => {
           </Card>
         )}
 
-        {/* Active Alerts */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">Regional Crime Alerts</h2>
-          
-          {alerts.length === 0 ? (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>No Active Alerts</AlertTitle>
-              <AlertDescription>
-                There are currently no active crime alerts in your area. Stay vigilant and report any suspicious activity.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="grid gap-4">
-              {alerts.map((alert) => (
-                <Card key={alert.id} className="border-l-4 border-l-primary">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          {alert.type}
-                          <Badge variant={getSeverityColor(alert.severity)}>
-                            {alert.severity.toUpperCase()}
-                          </Badge>
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-2 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {alert.location} • {alert.distance}
-                        </CardDescription>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {formatTimestamp(alert.timestamp)}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">{alert.description}</p>
-                    <div className="flex gap-2 mt-4">
-                      <Button size="sm" variant="outline">
-                        View Details
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        Report Similar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
