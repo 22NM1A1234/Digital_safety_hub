@@ -14,13 +14,266 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          location: string | null
+          message: string
+          severity: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          message: string
+          severity: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          message?: string
+          severity?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_user: boolean
+          message: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_user?: boolean
+          message: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_user?: boolean
+          message?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      incident_reports: {
+        Row: {
+          assigned_agent: string | null
+          case_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string
+          evidence_files: string[] | null
+          id: string
+          incident_date: string | null
+          incident_type: string
+          is_anonymous: boolean | null
+          location: string | null
+          status: string | null
+          updated_at: string
+          urgency: string
+          user_id: string
+        }
+        Insert: {
+          assigned_agent?: string | null
+          case_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          evidence_files?: string[] | null
+          id?: string
+          incident_date?: string | null
+          incident_type: string
+          is_anonymous?: boolean | null
+          location?: string | null
+          status?: string | null
+          updated_at?: string
+          urgency: string
+          user_id: string
+        }
+        Update: {
+          assigned_agent?: string | null
+          case_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          evidence_files?: string[] | null
+          id?: string
+          incident_date?: string | null
+          incident_type?: string
+          is_anonymous?: boolean | null
+          location?: string | null
+          status?: string | null
+          updated_at?: string
+          urgency?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      link_checks: {
+        Row: {
+          created_at: string
+          id: string
+          is_safe: boolean | null
+          risk_level: string | null
+          scan_details: Json | null
+          threats_detected: string[] | null
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_safe?: boolean | null
+          risk_level?: string | null
+          scan_details?: Json | null
+          threats_detected?: string[] | null
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_safe?: boolean | null
+          risk_level?: string | null
+          scan_details?: Json | null
+          threats_detected?: string[] | null
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string
+          description: string | null
+          difficulty_level: string | null
+          id: string
+          is_featured: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          id?: string
+          is_featured?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          id?: string
+          is_featured?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_alert_reads: {
+        Row: {
+          alert_id: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_alert_reads_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_case_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
