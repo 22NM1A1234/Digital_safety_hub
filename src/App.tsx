@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Resources from "./pages/Resources";
 import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/link-checker" element={<LinkChecker />} />
               <Route path="/report" element={<ReportIncident />} />
               <Route path="/cases" element={<Cases />} />

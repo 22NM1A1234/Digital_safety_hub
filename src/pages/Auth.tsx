@@ -56,7 +56,7 @@ const Auth = () => {
 
       toast({
         title: 'Account created successfully!',
-        description: 'Please check your email to verify your account.',
+        description: 'You can now sign in to your account.',
       });
     } catch (error: any) {
       toast({

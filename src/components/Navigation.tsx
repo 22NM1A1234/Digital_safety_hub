@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { Menu, Shield, AlertTriangle, FileText, MessageCircle, Search, Bell, LogOut, User } from "lucide-react";
+import { Menu, Shield, AlertTriangle, FileText, MessageCircle, Search, Bell, LogOut, User, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import AlertsDropdown from "./AlertsDropdown";
@@ -78,12 +78,17 @@ const Navigation = () => {
                 })}
                 <AlertsDropdown />
                 <div className="flex items-center space-x-2 border-l pl-4">
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {user.email?.split('@')[0]}
-                    </span>
-                  </div>
+                  <Link
+                    to="/profile"
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive('/profile')
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    }`}
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    <span>{user.email?.split('@')[0]}</span>
+                  </Link>
                   <Button
                     variant="ghost"
                     size="sm"
