@@ -13,7 +13,8 @@ export const UserProfileSetup: React.FC = () => {
   const [formData, setFormData] = useState({
     name: profile?.name || '',
     phoneNumber: profile?.phoneNumber || '',
-    emergencyContact: ''
+    emergencyContact: '',
+    zapierWebhook: profile?.zapierWebhook || ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -36,7 +37,8 @@ export const UserProfileSetup: React.FC = () => {
     updateProfile({
       name: formData.name,
       phoneNumber: formData.phoneNumber,
-      emergencyContacts
+      emergencyContacts,
+      zapierWebhook: formData.zapierWebhook
     });
 
     toast({
@@ -54,7 +56,8 @@ export const UserProfileSetup: React.FC = () => {
       updateProfile({
         name: formData.name,
         phoneNumber: formData.phoneNumber,
-        emergencyContacts
+        emergencyContacts,
+        zapierWebhook: formData.zapierWebhook
       });
       setFormData(prev => ({ ...prev, emergencyContact: '' }));
       
@@ -100,6 +103,20 @@ export const UserProfileSetup: React.FC = () => {
               placeholder="+91 9876543210"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="zapier">Zapier Webhook URL (for SMS alerts)</Label>
+            <Input
+              id="zapier"
+              type="url"
+              value={formData.zapierWebhook}
+              onChange={(e) => setFormData(prev => ({ ...prev, zapierWebhook: e.target.value }))}
+              placeholder="https://hooks.zapier.com/hooks/catch/..."
+            />
+            <p className="text-xs text-muted-foreground">
+              Create a Zapier webhook that sends SMS when triggered. Leave empty to disable SMS alerts.
+            </p>
           </div>
 
           <div className="space-y-2">

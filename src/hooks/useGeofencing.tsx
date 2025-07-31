@@ -160,27 +160,74 @@ export const useGeofencing = () => {
       .sort((a, b) => a.distance - b.distance);
   }, [latitude, longitude, crimeAreas, calculateDistance]);
 
-  // Send SMS Alert function
-  const sendSMSAlert = useCallback((phoneNumber: string, userName: string, area: CrimeArea) => {
-    // In production, this would call your SMS API
-    const message = `CRIME ALERT: ${userName}, you've entered ${area.name}. High ${area.crimeType} activity reported. Stay alert! - Digital Shield`;
-    
-    // For now, we'll simulate the SMS and log it
-    console.log(`SMS sent to ${phoneNumber}: ${message}`);
-    
-    // In a real implementation, you'd call your SMS service here:
-    // await fetch('/api/send-sms', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ to: phoneNumber, message })
-    // });
-  }, []);
+  // Send SMS Alert function using Zapier webhook
+  const sendSMSAlert = useCallback(async (phoneNumber: string, userName: string, area: CrimeArea) => {
+    if (!profile?.zapierWebhook) {
+      console.log('No Zapier webhook configured, skipping SMS alert');
+      return;
+    }
 
-  // Send Emergency SMS function
-  const sendEmergencySMS = useCallback((phoneNumber: string, userName: string, area: CrimeArea) => {
-    const message = `EMERGENCY ALERT: ${userName} has entered a high-crime area (${area.name}) with reported ${area.crimeType}. Location coordinates: ${area.latitude}, ${area.longitude}`;
-    
-    console.log(`Emergency SMS sent to ${phoneNumber}: ${message}`);
-  }, []);
+    try {
+      const message = `CRIME ALERT: ${userName}, you've entered ${area.name}. High ${area.crimeType} activity reported. Stay alert! - Digital Shield`;
+      
+      await fetch(profile.zapierWebhook, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          to: phoneNumber,
+          message: message,
+          userName: userName,
+          areaName: area.name,
+          crimeType: area.crimeType,
+          severity: area.severity,
+          timestamp: new Date().toISOString(),
+          coordinates: `${area.latitude}, ${area.longitude}`
+        })
+      });
+      
+      console.log(`SMS alert sent via Zapier to ${phoneNumber}: ${message}`);
+    } catch (error) {
+      console.error('Failed to send SMS via Zapier:', error);
+    }
+  }, [profile?.zapierWebhook]);
+
+  // Send Emergency SMS function using Zapier webhook
+  const sendEmergencySMS = useCallback(async (phoneNumber: string, userName: string, area: CrimeArea) => {
+    if (!profile?.zapierWebhook) {
+      console.log('No Zapier webhook configured, skipping emergency SMS');
+      return;
+    }
+
+    try {
+      const message = `EMERGENCY ALERT: ${userName} has entered a high-crime area (${area.name}) with reported ${area.crimeType}. Location coordinates: ${area.latitude}, ${area.longitude}`;
+      
+      await fetch(profile.zapierWebhook, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          to: phoneNumber,
+          message: message,
+          isEmergency: true,
+          userName: userName,
+          areaName: area.name,
+          crimeType: area.crimeType,
+          severity: area.severity,
+          timestamp: new Date().toISOString(),
+          coordinates: `${area.latitude}, ${area.longitude}`
+        })
+      });
+      
+      console.log(`Emergency SMS sent via Zapier to ${phoneNumber}: ${message}`);
+    } catch (error) {
+      console.error('Failed to send emergency SMS via Zapier:', error);
+    }
+  }, [profile?.zapierWebhook]);
 
   // Request notification permission
   const requestNotificationPermission = useCallback(async () => {

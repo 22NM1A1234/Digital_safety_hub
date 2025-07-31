@@ -4,6 +4,7 @@ interface UserProfile {
   name: string;
   phoneNumber: string;
   emergencyContacts: string[];
+  zapierWebhook?: string;
 }
 
 interface UserProfileContextType {
