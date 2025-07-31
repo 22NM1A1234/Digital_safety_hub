@@ -27,9 +27,9 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
       setResult(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        // Using OpenStreetMap Nominatim API (free reverse geocoding)
+        // Using OpenStreetMap Nominatim API (free reverse geocoding) with higher precision
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
           {
             headers: {
               'User-Agent': 'CrimeAlertsApp/1.0'
@@ -44,9 +44,10 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
         const data = await response.json();
         
         if (data && data.display_name) {
-          // Extract meaningful location parts
+          // Extract more precise location parts for exact location
           const address = data.address || {};
           const locationParts = [
+            address.house_number && address.road ? `${address.house_number} ${address.road}` : address.road,
             address.neighbourhood || address.suburb,
             address.city || address.town || address.village,
             address.state || address.province
@@ -54,7 +55,7 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
 
           const locationName = locationParts.length > 0 
             ? locationParts.join(', ')
-            : data.display_name.split(',').slice(0, 3).join(',');
+            : data.display_name.split(',').slice(0, 4).join(',');
 
           setResult({
             locationName,
