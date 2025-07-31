@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGeolocation } from './useGeolocation';
 import { useAlerts } from '@/contexts/AlertContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 
 interface CrimeArea {
   id: string;
@@ -64,6 +65,7 @@ export const useGeofencing = () => {
     enableHighAccuracy: true 
   });
   const { addAlert } = useAlerts();
+  const { profile } = useUserProfile();
 
   // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = useCallback((
@@ -127,8 +129,15 @@ export const useGeofencing = () => {
           });
         }
 
-        // SMS notification simulation (in real app, this would call an API)
-        console.log(`SMS Alert: You've entered ${area.name} - High crime area. Be cautious!`);
+        // Send SMS notification if user profile is available
+        if (profile?.phoneNumber) {
+          sendSMSAlert(profile.phoneNumber, profile.name, area);
+          
+          // Also send to emergency contacts
+          profile.emergencyContacts?.forEach(contact => {
+            sendEmergencySMS(contact, profile.name, area);
+          });
+        }
 
       } else if (!isWithinArea && wasMonitored) {
         // User left the crime area
@@ -150,6 +159,28 @@ export const useGeofencing = () => {
       .filter(area => area.distance <= 1000) // Within 1km
       .sort((a, b) => a.distance - b.distance);
   }, [latitude, longitude, crimeAreas, calculateDistance]);
+
+  // Send SMS Alert function
+  const sendSMSAlert = useCallback((phoneNumber: string, userName: string, area: CrimeArea) => {
+    // In production, this would call your SMS API
+    const message = `CRIME ALERT: ${userName}, you've entered ${area.name}. High ${area.crimeType} activity reported. Stay alert! - Digital Shield`;
+    
+    // For now, we'll simulate the SMS and log it
+    console.log(`SMS sent to ${phoneNumber}: ${message}`);
+    
+    // In a real implementation, you'd call your SMS service here:
+    // await fetch('/api/send-sms', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ to: phoneNumber, message })
+    // });
+  }, []);
+
+  // Send Emergency SMS function
+  const sendEmergencySMS = useCallback((phoneNumber: string, userName: string, area: CrimeArea) => {
+    const message = `EMERGENCY ALERT: ${userName} has entered a high-crime area (${area.name}) with reported ${area.crimeType}. Location coordinates: ${area.latitude}, ${area.longitude}`;
+    
+    console.log(`Emergency SMS sent to ${phoneNumber}: ${message}`);
+  }, []);
 
   // Request notification permission
   const requestNotificationPermission = useCallback(async () => {

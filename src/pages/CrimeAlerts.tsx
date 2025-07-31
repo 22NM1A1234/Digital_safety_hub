@@ -7,7 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useGeofencing } from "@/hooks/useGeofencing";
 import { useReverseGeocoding } from "@/hooks/useReverseGeocoding";
-import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield } from "lucide-react";
+import { useUserProfile } from "@/contexts/UserProfileContext";
+import { UserProfileSetup } from "@/components/UserProfileSetup";
+import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield, User } from "lucide-react";
 
 interface CrimeAlert {
   id: string;
@@ -30,7 +32,9 @@ const CrimeAlerts = () => {
   const [alerts, setAlerts] = useState<CrimeAlert[]>([]);
   const [stats, setStats] = useState<CrimeStats | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
   const { toast } = useToast();
+  const { profile, isProfileComplete } = useUserProfile();
   const { latitude, longitude, error: locationError } = useGeolocation({ enableHighAccuracy: true });
   const { locationName, loading: locationNameLoading } = useReverseGeocoding(latitude, longitude);
   const { 
@@ -155,15 +159,32 @@ const CrimeAlerts = () => {
               Stay informed about safety incidents in your area
             </p>
           </div>
-          <Button 
-            onClick={enableNotifications}
-            variant={notificationsEnabled ? "secondary" : "default"}
-            className="flex items-center gap-2"
-          >
-            {notificationsEnabled ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-            {notificationsEnabled ? "Notifications On" : "Enable Alerts"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowProfileSetup(!showProfileSetup)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              {isProfileComplete ? 'Update Profile' : 'Setup Profile'}
+            </Button>
+            <Button 
+              onClick={enableNotifications}
+              variant={notificationsEnabled ? "secondary" : "default"}
+              className="flex items-center gap-2"
+            >
+              {notificationsEnabled ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+              {notificationsEnabled ? "Notifications On" : "Enable Alerts"}
+            </Button>
+          </div>
         </div>
+
+        {/* Profile Setup Modal */}
+        {showProfileSetup && (
+          <div className="mb-6">
+            <UserProfileSetup />
+          </div>
+        )}
 
         {/* Location & Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
