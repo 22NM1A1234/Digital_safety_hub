@@ -59,56 +59,19 @@ const AdminDashboard = () => {
   const [userIdSearch, setUserIdSearch] = useState("");
   const { toast } = useToast();
 
-  // Mock reports data - in real app, this would come from API
-  const mockReports: Report[] = [
-    {
-      id: "1",
-      userId: "USER001",
-      caseId: "DSH-ABC123",
-      type: "Cyber Fraud",
-      urgency: "high",
-      status: "investigating",
-      description: "Phishing email targeting banking credentials",
-      location: "Downtown Area",
-      timestamp: "2024-01-26T10:30:00Z",
-      assignedAgent: "Agent Smith"
-    },
-    {
-      id: "2",
-      userId: "USER001",
-      caseId: "DSH-DEF456",
-      type: "Identity Theft",
-      urgency: "medium",
-      status: "resolved",
-      description: "Unauthorized use of personal information",
-      location: "University District",
-      timestamp: "2024-01-25T14:20:00Z",
-      assignedAgent: "Agent Johnson"
-    },
-    {
-      id: "3",
-      userId: "USER002",
-      caseId: "DSH-GHI789",
-      type: "Online Harassment",
-      urgency: "critical",
-      status: "pending",
-      description: "Persistent cyberbullying and threats",
-      location: "Residential Area",
-      timestamp: "2024-01-26T09:15:00Z"
-    }
-  ];
-
+  // Mock summary data
   const mockSummary: ReportSummary = {
-    totalReports: 156,
-    pendingReports: 23,
-    resolvedReports: 98,
-    criticalReports: 5
+    totalReports: 0,
+    pendingReports: 0,
+    resolvedReports: 0,
+    criticalReports: 0
   };
 
   useEffect(() => {
-    setReports(mockReports);
+    // Initialize with empty reports and reset summary
+    setReports([]);
     setSummary(mockSummary);
-    setFilteredReports(mockReports);
+    setFilteredReports([]);
 
     // Load cases from localStorage and mock data
     const storedReports = JSON.parse(localStorage.getItem('userReports') || '[]');
@@ -363,39 +326,55 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {reports.slice(0, 5).map((report) => (
-                    <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{report.caseId}</span>
-                          <Badge variant={getUrgencyColor(report.urgency)}>
-                            {report.urgency.toUpperCase()}
-                          </Badge>
-                          <Badge variant={getStatusColor(report.status)}>
-                            {report.status.toUpperCase()}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{report.type}</p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {report.userId}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {report.location}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formatTimestamp(report.timestamp)}
-                          </span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        View Details
+                  {reports.length === 0 ? (
+                    <div className="text-center py-12">
+                      <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-lg font-medium text-foreground mb-2">No reports submitted yet</p>
+                      <p className="text-muted-foreground mb-4">
+                        You haven't submitted any incident reports. Get started by reporting a new incident.
+                      </p>
+                      <Button asChild>
+                        <a href="/report">
+                          <AlertTriangle className="h-4 w-4 mr-2" />
+                          Report New Incident
+                        </a>
                       </Button>
                     </div>
-                  ))}
+                  ) : (
+                    reports.slice(0, 5).map((report) => (
+                      <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{report.caseId}</span>
+                            <Badge variant={getUrgencyColor(report.urgency)}>
+                              {report.urgency.toUpperCase()}
+                            </Badge>
+                            <Badge variant={getStatusColor(report.status)}>
+                              {report.status.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{report.type}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              {report.userId}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {report.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formatTimestamp(report.timestamp)}
+                            </span>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
