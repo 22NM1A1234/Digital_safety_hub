@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useGeofencing } from "@/hooks/useGeofencing";
+import { useReverseGeocoding } from "@/hooks/useReverseGeocoding";
 import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield } from "lucide-react";
 
 interface CrimeAlert {
@@ -31,6 +32,7 @@ const CrimeAlerts = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const { toast } = useToast();
   const { latitude, longitude, error: locationError } = useGeolocation({ enableHighAccuracy: true });
+  const { locationName, loading: locationNameLoading } = useReverseGeocoding(latitude, longitude);
   const { 
     currentLocation, 
     crimeAreas, 
@@ -123,7 +125,18 @@ const CrimeAlerts = () => {
   const getLocationString = () => {
     if (locationError) return "Location Access Denied";
     if (!latitude || !longitude) return "Getting location...";
-    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    
+    const coordinates = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    
+    if (locationNameLoading) {
+      return `${coordinates} • Getting location name...`;
+    }
+    
+    if (locationName) {
+      return `${locationName} • ${coordinates}`;
+    }
+    
+    return coordinates;
   };
 
   const formatTimestamp = (timestamp: string) => {
