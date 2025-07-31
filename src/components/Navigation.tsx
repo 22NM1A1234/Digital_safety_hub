@@ -17,7 +17,6 @@ const Navigation = () => {
     { name: "Home", href: "/", icon: Shield },
     { name: "Link Checker", href: "/link-checker", icon: Search },
     { name: "Report Incident", href: "/report", icon: AlertTriangle },
-    { name: "My Cases", href: "/cases", icon: FileText },
     { name: "Crime Alerts", href: "/crime-alerts", icon: Bell },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Help Chat", href: "/chat", icon: MessageCircle },

@@ -9,7 +9,7 @@ import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import LinkChecker from "./pages/LinkChecker";
 import ReportIncident from "./pages/ReportIncident";
-import Cases from "./pages/Cases";
+
 import CrimeAlerts from "./pages/CrimeAlerts";
 import AdminDashboard from "./pages/AdminDashboard";
 import Resources from "./pages/Resources";
@@ -35,7 +35,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/link-checker" element={<LinkChecker />} />
               <Route path="/report" element={<ReportIncident />} />
-              <Route path="/cases" element={<Cases />} />
+              
               <Route path="/crime-alerts" element={<CrimeAlerts />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/resources" element={<Resources />} />
