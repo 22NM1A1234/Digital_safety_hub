@@ -6,7 +6,6 @@ import { Menu, Shield, AlertTriangle, FileText, MessageCircle, Search, Bell, Log
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import AlertsDropdown from "./AlertsDropdown";
-import { clearAllData } from "@/utils/dataReset";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -96,15 +95,6 @@ const Navigation = () => {
                        )}
                      </div>
                    </Link>
-                   <Button
-                     variant="destructive"
-                     size="sm"
-                     onClick={clearAllData}
-                     className="flex items-center space-x-1 mr-2"
-                   >
-                     <AlertTriangle className="h-4 w-4" />
-                     <span>Reset All</span>
-                   </Button>
                    <Button
                      variant="ghost"
                      size="sm"
