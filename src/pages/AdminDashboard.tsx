@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MapPin, Clock, User, AlertTriangle, TrendingUp, FileText, Eye, MessageSquare, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Report {
   id: string;
@@ -35,24 +37,61 @@ const AdminDashboard = () => {
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [summary, setSummary] = useState<ReportSummary | null>(null);
   const [loading, setLoading] = useState(false);
-  const [userIdSearch, setUserIdSearch] = useState("");
+  const { user, isAdmin, userRole } = useAuth();
   const { toast } = useToast();
 
-  // Mock summary data
-  const mockSummary: ReportSummary = {
-    totalReports: 0,
-    pendingReports: 0,
-    resolvedReports: 0,
-    criticalReports: 0
+  const fetchReports = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('incident_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform the data to match our Report interface
+      const transformedReports: Report[] = data?.map(report => ({
+        id: report.id,
+        userId: report.user_id,
+        caseId: report.case_id,
+        type: report.incident_type,
+        urgency: report.urgency as "low" | "medium" | "high" | "critical",
+        status: report.status as "pending" | "investigating" | "resolved" | "closed",
+        description: report.description,
+        location: report.location || 'Not specified',
+        timestamp: report.created_at,
+        assignedAgent: report.assigned_agent
+      })) || [];
+
+      setReports(transformedReports);
+      setFilteredReports(transformedReports);
+
+      // Calculate summary
+      const newSummary: ReportSummary = {
+        totalReports: transformedReports.length,
+        pendingReports: transformedReports.filter(r => r.status === 'pending').length,
+        resolvedReports: transformedReports.filter(r => r.status === 'resolved').length,
+        criticalReports: transformedReports.filter(r => r.urgency === 'critical' || r.urgency === 'high').length
+      };
+      setSummary(newSummary);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch reports. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    // Initialize with empty reports and reset summary
-    setReports([]);
-    setSummary(mockSummary);
-    setFilteredReports([]);
-
-  }, []);
+    fetchReports();
+  }, [user]);
 
   const handleSearch = () => {
     if (!searchUserId.trim()) {
@@ -106,18 +145,26 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            User Dashboard
+            {isAdmin ? 'Admin Dashboard' : 'User Dashboard'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Track your incident reports and view your case status
+            {isAdmin 
+              ? 'Manage all incident reports and monitor system activity' 
+              : 'Track your incident reports and view your case status'
+            }
           </p>
+          {userRole && (
+            <Badge variant={isAdmin ? "default" : "secondary"} className="mt-2">
+              {userRole.toUpperCase()} ACCESS
+            </Badge>
+          )}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">My Reports</TabsTrigger>
-            <TabsTrigger value="tracking">Track My Cases</TabsTrigger>
-            <TabsTrigger value="analytics">My Activity</TabsTrigger>
+            <TabsTrigger value="overview">{isAdmin ? 'All Reports' : 'My Reports'}</TabsTrigger>
+            <TabsTrigger value="tracking">{isAdmin ? 'User Management' : 'Track My Cases'}</TabsTrigger>
+            <TabsTrigger value="analytics">{isAdmin ? 'System Analytics' : 'My Activity'}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -125,12 +172,12 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">My Reports</CardTitle>
+                  <CardTitle className="text-sm font-medium">{isAdmin ? 'Total Reports' : 'My Reports'}</CardTitle>
                   <AlertTriangle className="h-4 w-4 ml-auto text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{summary?.totalReports || 0}</div>
-                  <p className="text-xs text-muted-foreground">Total reports submitted</p>
+                  <p className="text-xs text-muted-foreground">{isAdmin ? 'All reports in system' : 'Total reports submitted'}</p>
                 </CardContent>
               </Card>
 
@@ -168,30 +215,66 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
+            {/* Admin Search */}
+            {isAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Search Reports</CardTitle>
+                  <CardDescription>Search reports by case ID or user ID</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter case ID or user ID..."
+                      value={searchUserId}
+                      onChange={(e) => setSearchUserId(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleSearch} disabled={loading}>
+                      <Search className="h-4 w-4 mr-2" />
+                      Search
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Recent Reports */}
             <Card>
               <CardHeader>
-                <CardTitle>My Recent Reports</CardTitle>
-                <CardDescription>Your latest incident reports and their current status</CardDescription>
+                <CardTitle>{isAdmin ? 'All Recent Reports' : 'My Recent Reports'}</CardTitle>
+                <CardDescription>
+                  {isAdmin 
+                    ? 'Latest incident reports from all users' 
+                    : 'Your latest incident reports and their current status'
+                  }
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {reports.length === 0 ? (
-                    <div className="text-center py-12">
-                      <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-lg font-medium text-foreground mb-2">No reports submitted yet</p>
-                      <p className="text-muted-foreground mb-4">
-                        You haven't submitted any incident reports. Get started by reporting a new incident.
-                      </p>
-                      <Button asChild>
-                        <a href="/report">
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                          Report New Incident
-                        </a>
-                      </Button>
-                    </div>
-                  ) : (
-                    reports.slice(0, 5).map((report) => (
+                 <div className="space-y-4">
+                   {filteredReports.length === 0 ? (
+                     <div className="text-center py-12">
+                       <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                       <p className="text-lg font-medium text-foreground mb-2">
+                         {loading ? 'Loading reports...' : isAdmin ? 'No reports found' : 'No reports submitted yet'}
+                       </p>
+                       <p className="text-muted-foreground mb-4">
+                         {isAdmin 
+                           ? 'No incident reports match your search criteria.' 
+                           : "You haven't submitted any incident reports. Get started by reporting a new incident."
+                         }
+                       </p>
+                       {!isAdmin && (
+                         <Button asChild>
+                           <a href="/report">
+                             <AlertTriangle className="h-4 w-4 mr-2" />
+                             Report New Incident
+                           </a>
+                         </Button>
+                       )}
+                     </div>
+                   ) : (
+                     filteredReports.slice(0, 10).map((report) => (
                       <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">

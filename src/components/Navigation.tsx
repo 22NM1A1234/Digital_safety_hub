@@ -10,7 +10,7 @@ import AlertsDropdown from "./AlertsDropdown";
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, userRole, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
 
   const navigation = [
@@ -77,17 +77,24 @@ const Navigation = () => {
                 })}
                 <AlertsDropdown />
                 <div className="flex items-center space-x-2 border-l pl-4">
-                  <Link
-                    to="/profile"
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/profile')
-                        ? "text-primary bg-primary/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                    }`}
-                  >
-                    <UserCircle className="h-4 w-4" />
-                    <span>{user.email?.split('@')[0]}</span>
-                  </Link>
+                   <Link
+                     to="/profile"
+                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                       isActive('/profile')
+                         ? "text-primary bg-primary/10"
+                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                     }`}
+                   >
+                     <UserCircle className="h-4 w-4" />
+                     <div className="flex flex-col">
+                       <span className="text-sm">{user.email?.split('@')[0]}</span>
+                       {userRole && (
+                         <span className={`text-xs ${isAdmin ? 'text-primary' : 'text-muted-foreground'}`}>
+                           {userRole.toUpperCase()}
+                         </span>
+                       )}
+                     </div>
+                   </Link>
                   <Button
                     variant="ghost"
                     size="sm"
