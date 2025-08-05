@@ -12,7 +12,7 @@ import LinkChecker from "./pages/LinkChecker";
 import ReportIncident from "./pages/ReportIncident";
 
 import CrimeAlerts from "./pages/CrimeAlerts";
-import AdminDashboard from "./pages/AdminDashboard";
+
 import Resources from "./pages/Resources";
 import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
@@ -40,11 +40,6 @@ const App = () => (
                 <Route path="/report" element={<ReportIncident />} />
                 
                 <Route path="/crime-alerts" element={<CrimeAlerts />} />
-                <Route path="/admin" element={
-                  <ProtectedRoute requireAdmin={true}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="*" element={<NotFound />} />
