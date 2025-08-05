@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MapPin, Clock, User, AlertTriangle, TrendingUp, FileText, Eye, MessageSquare, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -45,10 +46,17 @@ const AdminDashboard = () => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('incident_reports')
         .select('*')
         .order('created_at', { ascending: false });
+      
+      // If not admin, only fetch user's own reports
+      if (!isAdmin) {
+        query = query.eq('user_id', user.id);
+      }
+      
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -137,6 +145,63 @@ const AdminDashboard = () => {
 
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
+  };
+
+  const updateReportStatus = async (reportId: string, newStatus: string) => {
+    if (!isAdmin) return;
+    
+    try {
+      const { error } = await supabase
+        .from('incident_reports')
+        .update({ status: newStatus })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      // Update local state
+      setReports(prevReports => 
+        prevReports.map(report => 
+          report.id === reportId 
+            ? { ...report, status: newStatus as "pending" | "investigating" | "resolved" | "closed" }
+            : report
+        )
+      );
+      
+      setFilteredReports(prevReports => 
+        prevReports.map(report => 
+          report.id === reportId 
+            ? { ...report, status: newStatus as "pending" | "investigating" | "resolved" | "closed" }
+            : report
+        )
+      );
+
+      // Update summary after status change
+      const updatedReports = reports.map(report => 
+        report.id === reportId 
+          ? { ...report, status: newStatus as "pending" | "investigating" | "resolved" | "closed" }
+          : report
+      );
+      
+      const newSummary: ReportSummary = {
+        totalReports: updatedReports.length,
+        pendingReports: updatedReports.filter(r => r.status === 'pending').length,
+        resolvedReports: updatedReports.filter(r => r.status === 'resolved').length,
+        criticalReports: updatedReports.filter(r => r.urgency === 'critical' || r.urgency === 'high').length
+      };
+      setSummary(newSummary);
+
+      toast({
+        title: "Status Updated",
+        description: `Report status updated to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update report status",
+        variant: "destructive"
+      });
+    }
   };
 
 
@@ -239,76 +304,106 @@ const AdminDashboard = () => {
               </Card>
             )}
 
-            {/* Recent Reports */}
+            {/* Reports Table for Admin */}
             <Card>
               <CardHeader>
-                <CardTitle>{isAdmin ? 'All Recent Reports' : 'My Recent Reports'}</CardTitle>
+                <CardTitle>{isAdmin ? 'All User Reports' : 'My Reports'}</CardTitle>
                 <CardDescription>
                   {isAdmin 
-                    ? 'Latest incident reports from all users' 
-                    : 'Your latest incident reports and their current status'
+                    ? 'Manage and update status of all incident reports' 
+                    : 'Your incident reports and their current status'
                   }
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                 <div className="space-y-4">
-                   {filteredReports.length === 0 ? (
-                     <div className="text-center py-12">
-                       <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                       <p className="text-lg font-medium text-foreground mb-2">
-                         {loading ? 'Loading reports...' : isAdmin ? 'No reports found' : 'No reports submitted yet'}
-                       </p>
-                       <p className="text-muted-foreground mb-4">
-                         {isAdmin 
-                           ? 'No incident reports match your search criteria.' 
-                           : "You haven't submitted any incident reports. Get started by reporting a new incident."
-                         }
-                       </p>
-                       {!isAdmin && (
-                         <Button asChild>
-                           <a href="/report">
-                             <AlertTriangle className="h-4 w-4 mr-2" />
-                             Report New Incident
-                           </a>
-                         </Button>
-                       )}
-                     </div>
-                   ) : (
-                     filteredReports.slice(0, 10).map((report) => (
-                      <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{report.caseId}</span>
-                            <Badge variant={getUrgencyColor(report.urgency)}>
-                              {report.urgency.toUpperCase()}
-                            </Badge>
-                            <Badge variant={getStatusColor(report.status)}>
-                              {report.status.toUpperCase()}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{report.type}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <User className="h-3 w-3" />
-                              {report.userId}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {report.location}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {formatTimestamp(report.timestamp)}
-                            </span>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
+                {filteredReports.length === 0 ? (
+                  <div className="text-center py-12">
+                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-lg font-medium text-foreground mb-2">
+                      {loading ? 'Loading reports...' : isAdmin ? 'No reports found' : 'No reports submitted yet'}
+                    </p>
+                    <p className="text-muted-foreground mb-4">
+                      {isAdmin 
+                        ? 'No incident reports match your search criteria.' 
+                        : "You haven't submitted any incident reports. Get started by reporting a new incident."
+                      }
+                    </p>
+                    {!isAdmin && (
+                      <Button asChild>
+                        <a href="/report">
+                          <AlertTriangle className="h-4 w-4 mr-2" />
+                          Report New Incident
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Case ID</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Urgency</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Created</TableHead>
+                          {isAdmin && <TableHead>Actions</TableHead>}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredReports.map((report) => (
+                          <TableRow key={report.id}>
+                            <TableCell className="font-medium">{report.caseId}</TableCell>
+                            <TableCell>{report.type}</TableCell>
+                            <TableCell>
+                              <Badge variant={getUrgencyColor(report.urgency)}>
+                                {report.urgency.toUpperCase()}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusColor(report.status)}>
+                                {report.status.toUpperCase()}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{report.location}</TableCell>
+                            <TableCell>{formatTimestamp(report.timestamp)}</TableCell>
+                            {isAdmin && (
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => updateReportStatus(report.id, 'pending')}
+                                    disabled={report.status === 'pending'}
+                                  >
+                                    Pending
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => updateReportStatus(report.id, 'resolved')}
+                                    disabled={report.status === 'resolved'}
+                                  >
+                                    Resolved
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => updateReportStatus(report.id, 'closed')}
+                                    disabled={report.status === 'closed'}
+                                  >
+                                    Closed
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

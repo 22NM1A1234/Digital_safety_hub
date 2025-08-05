@@ -18,6 +18,7 @@ import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +40,11 @@ const App = () => (
                 <Route path="/report" element={<ReportIncident />} />
                 
                 <Route path="/crime-alerts" element={<CrimeAlerts />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="*" element={<NotFound />} />
