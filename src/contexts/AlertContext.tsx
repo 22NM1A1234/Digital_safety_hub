@@ -36,31 +36,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const { toast } = useToast();
 
-  // Mock alerts for demonstration
-  useEffect(() => {
-    const mockAlerts: Alert[] = [
-      {
-        id: '1',
-        type: 'crime',
-        severity: 'high',
-        title: 'Cyber Fraud Alert',
-        message: 'Multiple phishing attempts detected in your area',
-        location: 'Downtown Area',
-        timestamp: new Date().toISOString(),
-        read: false
-      },
-      {
-        id: '2',
-        type: 'safety',
-        severity: 'medium',
-        title: 'Safety Reminder',
-        message: 'Update your passwords regularly for better security',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        read: false
-      }
-    ];
-    setAlerts(mockAlerts);
-  }, []);
+  // No mock alerts - alerts will be added when actions occur
 
   const unreadCount = alerts.filter(alert => !alert.read).length;
 

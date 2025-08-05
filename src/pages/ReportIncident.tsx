@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, Upload, FileText, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlerts } from "@/contexts/AlertContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const ReportIncident = () => {
@@ -28,6 +29,7 @@ const ReportIncident = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { addAlert } = useAlerts();
 
   useEffect(() => {
     if (!user) {
@@ -100,6 +102,14 @@ const ReportIncident = () => {
       toast({
         title: "Report Submitted Successfully",
         description: `Your case ID is ${data.case_id}. Track your report in the User Dashboard.`,
+      });
+
+      // Add alert notification
+      addAlert({
+        type: 'system',
+        severity: 'medium',
+        title: 'Report Submitted',
+        message: `Your report has been submitted and will be solved soon. Case ID: ${data.case_id}`,
       });
 
       // Reset form
