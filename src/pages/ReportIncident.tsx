@@ -85,10 +85,7 @@ const ReportIncident = () => {
       console.log('Submitting report data:', reportData);
 
       const { data, error } = await supabase.functions.invoke('submit-report', {
-        body: JSON.stringify(reportData),
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        body: reportData  // Don't stringify - Supabase handles this automatically
       });
 
       if (error) {

@@ -20,7 +20,7 @@ const Navigation = () => {
     { name: "Crime Alerts", href: "/crime-alerts", icon: Bell },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Help Chat", href: "/chat", icon: MessageCircle },
-    { name: "User Dashboard", href: "/admin", icon: Shield },
+    { name: "Dashboard", href: "/dashboard", icon: Shield },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -78,9 +78,9 @@ const Navigation = () => {
                 <AlertsDropdown />
                 <div className="flex items-center space-x-2 border-l pl-4">
                    <Link
-                     to="/profile"
+                     to="/dashboard"
                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                       isActive('/profile')
+                       isActive('/dashboard')
                          ? "text-primary bg-primary/10"
                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                      }`}
