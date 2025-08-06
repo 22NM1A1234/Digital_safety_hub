@@ -106,16 +106,6 @@ const AppSidebar = () => {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {isOpen && (
-              <SidebarGroup>
-                <SidebarGroupLabel>Alerts</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <div className="px-2">
-                    <AlertsDropdown />
-                  </div>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
           </>
         ) : (
           <SidebarGroup>
