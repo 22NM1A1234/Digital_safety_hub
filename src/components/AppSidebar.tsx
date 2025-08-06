@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Shield, Search, AlertTriangle, Bell, FileText, MessageCircle, LogOut, UserCircle } from "lucide-react";
+import { Shield, Search, AlertTriangle, Bell, FileText, MessageCircle, LogOut, UserCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -23,7 +23,7 @@ const AppSidebar = () => {
   const location = useLocation();
   const { user, userRole, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
-  const { open: isOpen } = useSidebar();
+  const { open: isOpen, toggleSidebar } = useSidebar();
 
   const navigation = [
     { name: "Home", href: "/", icon: Shield },
@@ -56,14 +56,30 @@ const AppSidebar = () => {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
-        <Link to="/" className="flex items-center space-x-2">
-          <Shield className="h-8 w-8 text-primary" />
-          {isOpen && (
-            <span className="font-bold text-lg text-foreground">
-              DigitalSafety Hub
-            </span>
-          )}
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2">
+            <Shield className="h-8 w-8 text-primary" />
+            {isOpen && (
+              <span className="font-bold text-lg text-foreground">
+                DigitalSafety Hub
+              </span>
+            )}
+          </Link>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-8 w-8 shrink-0"
+            aria-label={isOpen ? "Minimize sidebar" : "Maximize sidebar"}
+          >
+            {isOpen ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
