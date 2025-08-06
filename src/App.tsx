@@ -31,10 +31,10 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <div className="min-h-screen flex flex-col w-full">
-                <Header />
-                <div className="flex flex-1">
-                  <SidebarProvider>
+              <SidebarProvider>
+                <div className="min-h-screen flex flex-col w-full">
+                  <Header />
+                  <div className="flex flex-1">
                     <AppSidebar />
                     <SidebarInset className="flex-1">
                       <main className="flex-1 overflow-auto">
@@ -52,9 +52,9 @@ const App = () => (
                         </Routes>
                       </main>
                     </SidebarInset>
-                  </SidebarProvider>
+                  </div>
                 </div>
-              </div>
+              </SidebarProvider>
             </BrowserRouter>
           </AlertProvider>
         </UserProfileProvider>
