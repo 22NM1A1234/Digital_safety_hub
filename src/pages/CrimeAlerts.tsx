@@ -9,7 +9,8 @@ import { useGeofencing } from "@/hooks/useGeofencing";
 import { useReverseGeocoding } from "@/hooks/useReverseGeocoding";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { UserProfileSetup } from "@/components/UserProfileSetup";
-import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield, User } from "lucide-react";
+import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield, User, BarChart3, TrendingDown, Activity, ExternalLink } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
 
 interface CrimeAlert {
   id: string;
@@ -84,6 +85,35 @@ const CrimeAlerts = () => {
     trending: "down",
     commonCrimes: ["Cyber Fraud", "Identity Theft", "Online Scams"]
   };
+
+  // Chart data
+  const weeklyTrendData = [
+    { day: 'Mon', incidents: 5, cyberFraud: 2, identityTheft: 2, harassment: 1 },
+    { day: 'Tue', incidents: 3, cyberFraud: 1, identityTheft: 1, harassment: 1 },
+    { day: 'Wed', incidents: 8, cyberFraud: 4, identityTheft: 2, harassment: 2 },
+    { day: 'Thu', incidents: 2, cyberFraud: 1, identityTheft: 0, harassment: 1 },
+    { day: 'Fri', incidents: 6, cyberFraud: 3, identityTheft: 2, harassment: 1 },
+    { day: 'Sat', incidents: 4, cyberFraud: 2, identityTheft: 1, harassment: 1 },
+    { day: 'Sun', incidents: 3, cyberFraud: 1, identityTheft: 1, harassment: 1 }
+  ];
+
+  const crimeTypeData = [
+    { name: 'Cyber Fraud', value: 45, color: '#ef4444' },
+    { name: 'Identity Theft', value: 30, color: '#f97316' },
+    { name: 'Online Scams', value: 15, color: '#eab308' },
+    { name: 'Data Breach', value: 7, color: '#06b6d4' },
+    { name: 'Other', value: 3, color: '#6b7280' }
+  ];
+
+  const areaRiskData = [
+    { area: 'Downtown', risk: 85, incidents: 12 },
+    { area: 'University', risk: 60, incidents: 8 },
+    { area: 'Residential', risk: 35, incidents: 5 },
+    { area: 'Business', risk: 70, incidents: 9 },
+    { area: 'Shopping', risk: 45, incidents: 6 }
+  ];
+
+  const COLORS = ['#ef4444', '#f97316', '#eab308', '#06b6d4', '#6b7280'];
 
   useEffect(() => {
     setAlerts(mockAlerts);
@@ -326,6 +356,326 @@ const CrimeAlerts = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Visual Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Weekly Trend Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingDown className="h-5 w-5 text-primary" />
+                Weekly Crime Trends
+              </CardTitle>
+              <CardDescription>
+                Daily incident reports over the past week
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={weeklyTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="incidents" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-success" />
+                  <span>23% decrease from last week</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Crime Types Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Crime Type Distribution
+              </CardTitle>
+              <CardDescription>
+                Breakdown of digital crime types in your area
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={crimeTypeData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {crimeTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Area Risk Analysis */}
+        <Card className="mb-12">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Risk Analysis by Area
+            </CardTitle>
+            <CardDescription>
+              Comparative risk assessment across different city areas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={areaRiskData}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="area" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar 
+                  dataKey="risk" 
+                  fill="hsl(var(--primary))" 
+                  name="Risk Score"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar 
+                  dataKey="incidents" 
+                  fill="hsl(var(--destructive))" 
+                  name="Incidents"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+              {areaRiskData.map((area, index) => (
+                <div key={area.area} className="text-center p-3 bg-muted/50 rounded-lg">
+                  <div className="font-semibold text-sm">{area.area}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Risk: {area.risk}% | {area.incidents} incidents
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Statistics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Response Time</p>
+                  <p className="text-2xl font-bold">3.2 min</p>
+                  <p className="text-xs text-success">-15% faster</p>
+                </div>
+                <Clock className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Resolved Cases</p>
+                  <p className="text-2xl font-bold">89%</p>
+                  <p className="text-xs text-success">+5% this week</p>
+                </div>
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+                  <p className="text-2xl font-bold">1,247</p>
+                  <p className="text-xs text-success">+8% growth</p>
+                </div>
+                <User className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Prevention Rate</p>
+                  <p className="text-2xl font-bold">76%</p>
+                  <p className="text-xs text-success">+12% improvement</p>
+                </div>
+                <AlertTriangle className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Call to Action Section */}
+        <div className="mb-16">
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="py-12">
+              <div className="text-center max-w-3xl mx-auto">
+                <Shield className="h-16 w-16 text-primary mx-auto mb-6" />
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                  Take Control of Your Digital Safety
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Don't wait for crime to find you. Stay ahead with real-time alerts, comprehensive reporting tools, and expert safety resources. Join thousands who trust SafeGuard for their digital protection.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button size="lg" asChild>
+                    <a href="/report-incident">
+                      Report Incident Now
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="lg" asChild>
+                    <a href="/resources">
+                      Safety Resources
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="lg" asChild>
+                    <a href="/link-checker">
+                      Check Suspicious Links
+                    </a>
+                  </Button>
+                </div>
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-primary">24/7</div>
+                    <div className="text-sm text-muted-foreground">Monitoring</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">99.9%</div>
+                    <div className="text-sm text-muted-foreground">Uptime</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">1,247+</div>
+                    <div className="text-sm text-muted-foreground">Protected Users</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Footer Section */}
+        <footer className="pt-12 pb-8 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                SafeGuard
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your comprehensive digital safety platform. Stay protected, stay informed, stay safe.
+              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-success rounded-full"></div>
+                  <span>All systems operational</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Security Tools</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/crime-alerts" className="text-muted-foreground hover:text-primary transition-colors">
+                    Crime Alerts
+                  </a>
+                </li>
+                <li>
+                  <a href="/link-checker" className="text-muted-foreground hover:text-primary transition-colors">
+                    Link Checker
+                  </a>
+                </li>
+                <li>
+                  <a href="/report-incident" className="text-muted-foreground hover:text-primary transition-colors">
+                    Report Incident
+                  </a>
+                </li>
+                <li>
+                  <a href="/chat" className="text-muted-foreground hover:text-primary transition-colors">
+                    AI Assistant
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
+                    Safety Guidelines
+                  </a>
+                </li>
+                <li>
+                  <a href="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+                    Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a href="/profile" className="text-muted-foreground hover:text-primary transition-colors">
+                    Profile Settings
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Connect</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/" className="text-muted-foreground hover:text-primary transition-colors">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="/auth" className="text-muted-foreground hover:text-primary transition-colors">
+                    Sign In
+                  </a>
+                </li>
+                <li>
+                  <button 
+                    onClick={enableNotifications}
+                    className="text-muted-foreground hover:text-primary transition-colors text-left"
+                  >
+                    Enable Notifications
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              © 2024 SafeGuard. All rights reserved. Protecting your digital world, one alert at a time.
+            </p>
+          </div>
+        </footer>
 
       </div>
     </div>
