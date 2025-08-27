@@ -143,10 +143,10 @@ const Chat = () => {
                       message.sender === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <div className={`flex gap-3 max-w-[80%] ${
+                    <div className={`flex gap-3 max-w-[85%] sm:max-w-[80%] md:max-w-[75%] ${
                       message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
                     }`}>
-                      <Avatar className="w-8 h-8">
+                      <Avatar className="w-8 h-8 flex-shrink-0">
                         <AvatarFallback className={
                           message.sender === 'user' 
                             ? 'bg-primary text-primary-foreground' 
@@ -156,12 +156,12 @@ const Chat = () => {
                         </AvatarFallback>
                       </Avatar>
                       
-                      <div className={`rounded-lg p-3 ${
+                      <div className={`rounded-lg p-3 min-w-0 flex-1 ${
                         message.sender === 'user'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
                       }`}>
-                        <div className="whitespace-pre-wrap text-sm">
+                        <div className="whitespace-pre-wrap text-sm break-words overflow-wrap-anywhere">
                           {message.content}
                         </div>
                         <div className={`text-xs mt-2 ${
