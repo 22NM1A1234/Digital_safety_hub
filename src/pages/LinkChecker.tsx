@@ -273,6 +273,117 @@ const LinkChecker = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Call to Action Section */}
+        <div className="mt-16 text-center">
+          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+            <CardContent className="py-12">
+              <Shield className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Stay Protected with Complete Security
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Link checking is just the beginning. Get comprehensive protection with our full security suite including real-time alerts, incident reporting, and emergency resources.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" asChild>
+                  <a href="/dashboard">
+                    Explore All Features
+                  </a>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <a href="/report-incident">
+                    Report Incident
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Footer Section */}
+        <footer className="mt-20 pt-12 pb-8 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                SafeGuard
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your trusted partner in digital security and personal safety.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Security Tools</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/link-checker" className="text-muted-foreground hover:text-primary transition-colors">
+                    Link Checker
+                  </a>
+                </li>
+                <li>
+                  <a href="/crime-alerts" className="text-muted-foreground hover:text-primary transition-colors">
+                    Crime Alerts
+                  </a>
+                </li>
+                <li>
+                  <a href="/report-incident" className="text-muted-foreground hover:text-primary transition-colors">
+                    Report Incident
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
+                    Safety Tips
+                  </a>
+                </li>
+                <li>
+                  <a href="/chat" className="text-muted-foreground hover:text-primary transition-colors">
+                    AI Assistant
+                  </a>
+                </li>
+                <li>
+                  <a href="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+                    Dashboard
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Account</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="/profile" className="text-muted-foreground hover:text-primary transition-colors">
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a href="/auth" className="text-muted-foreground hover:text-primary transition-colors">
+                    Sign In
+                  </a>
+                </li>
+                <li>
+                  <a href="/" className="text-muted-foreground hover:text-primary transition-colors">
+                    Home
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              © 2024 SafeGuard. All rights reserved. Keeping you safe in the digital world.
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
   );
