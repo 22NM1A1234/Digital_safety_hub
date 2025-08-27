@@ -229,10 +229,12 @@ const Chat = () => {
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full text-left justify-start h-auto py-2 px-3"
+                    className="w-full text-left justify-start h-auto py-3 px-3 text-wrap"
                     onClick={() => sendMessage(reply)}
                   >
-                    <span className="text-sm">{reply}</span>
+                    <span className="text-sm leading-tight whitespace-normal break-words">
+                      {reply}
+                    </span>
                   </Button>
                 ))}
               </CardContent>
@@ -246,22 +248,28 @@ const Chat = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" variant="destructive" asChild>
-                  <a href="/report">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Report Incident
+                <Button className="w-full h-auto py-3 px-3" variant="destructive" asChild>
+                  <a href="/report-incident" className="flex items-center justify-start">
+                    <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm leading-tight whitespace-normal break-words">
+                      Report Incident
+                    </span>
                   </a>
                 </Button>
-                <Button className="w-full" variant="outline" asChild>
-                  <a href="/link-checker">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Check Suspicious Link
+                <Button className="w-full h-auto py-3 px-3" variant="outline" asChild>
+                  <a href="/link-checker" className="flex items-center justify-start">
+                    <Shield className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm leading-tight whitespace-normal break-words">
+                      Check Suspicious Link
+                    </span>
                   </a>
                 </Button>
-                <Button className="w-full" variant="outline" asChild>
-                  <a href="/resources">
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    View Safety Guides
+                <Button className="w-full h-auto py-3 px-3" variant="outline" asChild>
+                  <a href="/resources" className="flex items-center justify-start">
+                    <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm leading-tight whitespace-normal break-words">
+                      View Safety Guides
+                    </span>
                   </a>
                 </Button>
               </CardContent>
