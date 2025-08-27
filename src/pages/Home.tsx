@@ -10,39 +10,25 @@ const Home = () => {
   
   const features = [
     {
-      icon: Search,
-      title: "Link Checker",
-      description: "Verify suspicious links and URLs for phishing attempts using advanced threat detection.",
+      icon: Shield,
+      title: "Cybersecurity",
+      description: "Complete digital protection with advanced threat detection and real-time monitoring for all your online activities.",
       href: "/link-checker",
-      color: "text-primary"
+      variant: "default"
+    },
+    {
+      icon: Search,
+      title: "Threat Detection",
+      description: "Advanced AI-powered scanning to identify and neutralize phishing attempts, malware, and suspicious content.",
+      href: "/report",
+      variant: "primary"
     },
     {
       icon: AlertTriangle,
-      title: "Report Incidents",
-      description: "Safely report cyberbullying, scams, and other digital threats with our secure system.",
-      href: "/report",
-      color: "text-warning"
-    },
-    {
-      icon: FileText,
-      title: "Track Cases",
-      description: "Monitor the status of your reported incidents and receive updates on investigations.",
-      href: "/cases",
-      color: "text-success"
-    },
-    {
-      icon: Bell,
-      title: "Crime Alerts",
-      description: "Get real-time alerts about crime and safety incidents in your area.",
+      title: "Incident Response", 
+      description: "Rapid response system for reporting and tracking cybersecurity incidents with expert guidance.",
       href: "/crime-alerts",
-      color: "text-warning"
-    },
-    {
-      icon: MessageCircle,
-      title: "Get Help",
-      description: "Chat with our AI assistant for immediate cybersecurity guidance and support.",
-      href: "/chat",
-      color: "text-accent"
+      variant: "default"
     }
   ];
 
@@ -146,29 +132,56 @@ const Home = () => {
       <section className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Comprehensive Digital Protection
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Our services
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Our platform provides all the tools you need to stay safe in the digital world
+            <p className="text-4xl md:text-5xl font-bold text-foreground max-w-4xl mx-auto">
+              Services for your digital security
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
+              const isHighlighted = feature.variant === "primary";
               return (
-                <Card key={index} className="border-border hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 bg-gradient-card">
-                  <CardHeader>
-                    <Icon className={`h-12 w-12 ${feature.color} mb-4`} />
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
+                <Card 
+                  key={index} 
+                  className={`
+                    ${isHighlighted 
+                      ? 'bg-primary text-primary-foreground border-primary' 
+                      : 'bg-muted/30 border-border'
+                    } 
+                    hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 rounded-2xl p-8 text-center
+                  `}
+                >
+                  <CardHeader className="pb-4">
+                    <div className={`
+                      w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center
+                      ${isHighlighted 
+                        ? 'bg-warning text-warning-foreground' 
+                        : 'bg-primary text-primary-foreground'
+                      }
+                    `}>
+                      <Icon className="h-8 w-8" />
+                    </div>
+                    <CardTitle className={`text-2xl font-bold ${isHighlighted ? 'text-primary-foreground' : 'text-foreground'}`}>
+                      {feature.title}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-muted-foreground mb-4">
+                  <CardContent className="pb-6">
+                    <CardDescription className={`text-base leading-relaxed mb-6 ${isHighlighted ? 'text-primary-foreground/90' : 'text-muted-foreground'}`}>
                       {feature.description}
                     </CardDescription>
-                    <Button asChild variant="outline" className="w-full">
-                      <Link to={feature.href}>Learn More</Link>
+                    <Button 
+                      asChild 
+                      variant={isHighlighted ? "secondary" : "default"}
+                      className="font-semibold"
+                    >
+                      <Link to={feature.href} className="inline-flex items-center gap-2">
+                        LEARN MORE 
+                        <span className="text-lg">→</span>
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
