@@ -12,7 +12,7 @@ const Header = () => {
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-50 h-16">
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center space-x-4">
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger />
           <Link to="/" className="flex items-center space-x-2">
             <Shield className="h-8 w-8 text-primary" />
             <span className="font-bold text-xl text-foreground hidden sm:block">
