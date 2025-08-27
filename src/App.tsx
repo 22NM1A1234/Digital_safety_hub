@@ -31,27 +31,25 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <SidebarProvider defaultOpen={false}>
+              <SidebarProvider>
                 <div className="min-h-screen flex flex-col w-full">
                   <Header />
                   <div className="flex flex-1">
                     <AppSidebar />
-                    <SidebarInset className="flex-1 min-w-0">
-                      <main className="flex-1 overflow-auto p-4 sm:p-6">
-                        <div className="max-w-7xl mx-auto">
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/auth" element={<Auth />} />
-                            <Route path="/profile" element={<Dashboard />} />
-                            <Route path="/link-checker" element={<LinkChecker />} />
-                            <Route path="/report" element={<ReportIncident />} />
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/crime-alerts" element={<CrimeAlerts />} />
-                            <Route path="/resources" element={<Resources />} />
-                            <Route path="/chat" element={<Chat />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </div>
+                    <SidebarInset className="flex-1">
+                      <main className="flex-1 overflow-auto">
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/profile" element={<Dashboard />} />
+                          <Route path="/link-checker" element={<LinkChecker />} />
+                          <Route path="/report" element={<ReportIncident />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/crime-alerts" element={<CrimeAlerts />} />
+                          <Route path="/resources" element={<Resources />} />
+                          <Route path="/chat" element={<Chat />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
                       </main>
                     </SidebarInset>
                   </div>
