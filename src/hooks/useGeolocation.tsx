@@ -26,12 +26,12 @@ export const useGeolocation = (options: GeolocationOptions = {}) => {
 
   const {
     enableHighAccuracy = true,
-    timeout = 15000, // Increased timeout for better accuracy
-    maximumAge = 60000, // Reduced to 1 minute for fresher location data
+    timeout = 20000, // Increased timeout for better accuracy
+    maximumAge = 0, // Always get fresh location data
     watch = false,
   } = options;
 
-  useEffect(() => {
+  const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       setState(prev => ({
         ...prev,
@@ -40,6 +40,8 @@ export const useGeolocation = (options: GeolocationOptions = {}) => {
       }));
       return;
     }
+
+    setState(prev => ({ ...prev, loading: true, error: null }));
 
     const handleSuccess = (position: GeolocationPosition) => {
       setState({
@@ -62,7 +64,7 @@ export const useGeolocation = (options: GeolocationOptions = {}) => {
           errorMessage = 'Location information is unavailable.';
           break;
         case error.TIMEOUT:
-          errorMessage = 'Location request timed out.';
+          errorMessage = 'Location request timed out. Please try again.';
           break;
       }
 
@@ -100,7 +102,12 @@ export const useGeolocation = (options: GeolocationOptions = {}) => {
         navigator.geolocation.clearWatch(watchId);
       }
     };
+  };
+
+  useEffect(() => {
+    const cleanup = getCurrentLocation();
+    return cleanup;
   }, [enableHighAccuracy, timeout, maximumAge, watch]);
 
-  return state;
+  return { ...state, refreshLocation: getCurrentLocation };
 };

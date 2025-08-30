@@ -9,7 +9,8 @@ import { useGeofencing } from "@/hooks/useGeofencing";
 import { useReverseGeocoding } from "@/hooks/useReverseGeocoding";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { UserProfileSetup } from "@/components/UserProfileSetup";
-import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield, User, BarChart3, TrendingDown, Activity, ExternalLink } from "lucide-react";
+import { ManualLocationInput } from "@/components/ManualLocationInput";
+import { MapPin, AlertTriangle, Clock, TrendingUp, Bell, BellRing, Navigation, Shield, User, BarChart3, TrendingDown, Activity, ExternalLink, Settings } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
 
 interface CrimeAlert {
@@ -34,14 +35,21 @@ const CrimeAlerts = () => {
   const [stats, setStats] = useState<CrimeStats | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showManualLocation, setShowManualLocation] = useState(false);
+  const [manualLocation, setManualLocation] = useState<{lat: number, lng: number, address: string} | null>(null);
   const { toast } = useToast();
   const { profile, isProfileComplete } = useUserProfile();
-  const { latitude, longitude, error: locationError, accuracy } = useGeolocation({ 
+  const { latitude, longitude, error: locationError, accuracy, loading: locationLoading, refreshLocation } = useGeolocation({ 
     enableHighAccuracy: true, 
-    timeout: 15000,
-    maximumAge: 60000
+    timeout: 25000,
+    maximumAge: 0, // Always get fresh location
+    watch: false
   });
-  const { locationName, loading: locationNameLoading } = useReverseGeocoding(latitude, longitude);
+  
+  // Use manual location if set, otherwise use GPS
+  const currentLat = manualLocation?.lat || latitude;
+  const currentLng = manualLocation?.lng || longitude;
+  const { locationName, loading: locationNameLoading } = useReverseGeocoding(currentLat, currentLng);
   const { 
     currentLocation, 
     crimeAreas, 
@@ -161,24 +169,43 @@ const CrimeAlerts = () => {
   };
 
   const getLocationString = () => {
-    if (locationError) return "Location Access Denied";
-    if (!latitude || !longitude) return "Getting location...";
+    if (manualLocation) {
+      return `${manualLocation.address} • ${manualLocation.lat.toFixed(6)}, ${manualLocation.lng.toFixed(6)} (Manual)`;
+    }
     
-    const coordinates = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    if (locationError) return "Location Access Denied - Click settings to set manually";
+    if (locationLoading || (!latitude && !longitude)) return "Getting precise location...";
+    
+    const coordinates = `${latitude?.toFixed(6)}, ${longitude?.toFixed(6)}`;
     
     if (locationNameLoading) {
-      return `${coordinates} • Getting location name...`;
+      return `${coordinates} • Identifying location...`;
     }
     
     if (locationName) {
-      // Show accuracy info if available
-      const accuracyText = accuracy && accuracy < 100 
-        ? ` (±${Math.round(accuracy)}m)` 
+      // Show accuracy info if available and poor
+      const accuracyText = accuracy && accuracy > 100 
+        ? ` (Low accuracy: ±${Math.round(accuracy)}m)` 
+        : accuracy && accuracy < 50
+        ? ` (High accuracy: ±${Math.round(accuracy)}m)`
         : '';
       return `${locationName} • ${coordinates}${accuracyText}`;
     }
     
-    return coordinates;
+    return `${coordinates} • Unable to identify address`;
+  };
+
+  const handleRefreshLocation = () => {
+    setManualLocation(null); // Clear manual location to use GPS
+    toast({
+      title: "Refreshing Location",
+      description: "Getting your current precise location...",
+    });
+    refreshLocation();
+  };
+
+  const handleManualLocationSet = (lat: number, lng: number, address: string) => {
+    setManualLocation({ lat, lng, address });
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -229,21 +256,71 @@ const CrimeAlerts = () => {
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Current Location</CardTitle>
-              <MapPin className="h-4 w-4 ml-auto text-muted-foreground" />
+              <div className="ml-auto flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowManualLocation(true)}
+                  className="h-6 w-6 p-0"
+                  title="Set location manually"
+                >
+                  <Settings className="h-3 w-3" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleRefreshLocation}
+                  disabled={locationLoading}
+                  className="h-6 w-6 p-0"
+                  title="Refresh GPS location"
+                >
+                  <Navigation className={`h-3 w-3 ${locationLoading ? 'animate-spin' : ''}`} />
+                </Button>
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{getLocationString()}</div>
-              <p className="text-xs text-muted-foreground">
-                Last updated: {new Date().toLocaleTimeString()}
-              </p>
+              <div className="text-lg font-bold break-words">{getLocationString()}</div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                <span>Last updated: {new Date().toLocaleTimeString()}</span>
+                {!manualLocation && accuracy && (
+                  <span className={accuracy < 50 ? 'text-success' : accuracy > 100 ? 'text-warning' : ''}>
+                    GPS: {accuracy < 50 ? 'Precise' : accuracy > 100 ? 'Approximate' : 'Good'}
+                  </span>
+                )}
+                {manualLocation && (
+                  <span className="text-primary">Manual Location</span>
+                )}
+              </div>
               {isInCrimeArea && (
                 <div className="flex items-center gap-1 mt-2">
                   <Shield className="h-3 w-3 text-destructive" />
                   <span className="text-xs text-destructive font-medium">In High-Risk Area</span>
                 </div>
               )}
+              {locationError && !manualLocation && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowManualLocation(true)}
+                  className="mt-2 w-full text-xs"
+                >
+                  <Settings className="h-3 w-3 mr-1" />
+                  Set Location Manually
+                </Button>
+              )}
             </CardContent>
           </Card>
+
+        {/* Manual Location Setup Modal */}
+        {showManualLocation && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <ManualLocationInput 
+              onLocationSet={handleManualLocationSet}
+              onClose={() => setShowManualLocation(false)}
+            />
+          </div>
+        )}
 
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
