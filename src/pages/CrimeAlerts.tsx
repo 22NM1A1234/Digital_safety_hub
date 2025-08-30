@@ -36,7 +36,11 @@ const CrimeAlerts = () => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const { toast } = useToast();
   const { profile, isProfileComplete } = useUserProfile();
-  const { latitude, longitude, error: locationError } = useGeolocation({ enableHighAccuracy: true });
+  const { latitude, longitude, error: locationError, accuracy } = useGeolocation({ 
+    enableHighAccuracy: true, 
+    timeout: 15000,
+    maximumAge: 60000
+  });
   const { locationName, loading: locationNameLoading } = useReverseGeocoding(latitude, longitude);
   const { 
     currentLocation, 
@@ -167,7 +171,11 @@ const CrimeAlerts = () => {
     }
     
     if (locationName) {
-      return `${locationName} • ${coordinates}`;
+      // Show accuracy info if available
+      const accuracyText = accuracy && accuracy < 100 
+        ? ` (±${Math.round(accuracy)}m)` 
+        : '';
+      return `${locationName} • ${coordinates}${accuracyText}`;
     }
     
     return coordinates;

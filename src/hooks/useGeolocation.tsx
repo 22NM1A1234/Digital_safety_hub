@@ -26,8 +26,8 @@ export const useGeolocation = (options: GeolocationOptions = {}) => {
 
   const {
     enableHighAccuracy = true,
-    timeout = 10000,
-    maximumAge = 300000, // 5 minutes
+    timeout = 15000, // Increased timeout for better accuracy
+    maximumAge = 60000, // Reduced to 1 minute for fresher location data
     watch = false,
   } = options;
 

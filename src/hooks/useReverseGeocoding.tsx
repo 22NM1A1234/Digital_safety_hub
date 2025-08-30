@@ -43,75 +43,55 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
       setResult(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        // Try multiple zoom levels for better accuracy
+        // Use reverse geocoding with multiple zoom levels for better accuracy
         const zoomLevels = [18, 16, 14, 12];
         let bestResult = null;
 
-        // Try searching for nearby educational institutions first
-        const searchResponse = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=vignans+institute+engineering+women+visakhapatnam&limit=5&addressdetails=1&extratags=1`,
-          {
-            headers: {
-              'User-Agent': 'CrimeAlertsApp/1.0'
-            }
-          }
-        );
-
-        if (searchResponse.ok) {
-          const searchData = await searchResponse.json();
-          // Check if any results are within 500m of current location
-          for (const place of searchData) {
-            const placeLat = parseFloat(place.lat);
-            const placeLon = parseFloat(place.lon);
-            const distance = calculateDistance(latitude, longitude, placeLat, placeLon);
-            
-            if (distance <= 500) { // Within 500 meters
-              bestResult = place;
-              break;
-            }
-          }
-        }
-
-        // If no nearby institution found, try reverse geocoding
-        if (!bestResult) {
-          for (const zoom of zoomLevels) {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=${zoom}&addressdetails=1&extratags=1`,
-              {
-                headers: {
-                  'User-Agent': 'CrimeAlertsApp/1.0'
-                }
+        for (const zoom of zoomLevels) {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=${zoom}&addressdetails=1&extratags=1`,
+            {
+              headers: {
+                'User-Agent': 'CrimeAlertsApp/1.0'
               }
-            );
+            }
+          );
 
-            if (response.ok) {
-              const data = await response.json();
-              if (data && data.display_name) {
-                bestResult = data;
-                // If we find a specific place or building, use it
-                if (data.extratags?.name || data.name || data.address?.amenity) {
-                  break;
-                }
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.display_name) {
+              bestResult = data;
+              // If we find a specific place or building, use it
+              if (data.extratags?.name || data.name || data.address?.amenity || data.address?.building) {
+                break;
               }
             }
           }
+          
+          // Add small delay between requests to be respectful to the API
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
         if (bestResult) {
           const address = bestResult.address || {};
           const extratags = bestResult.extratags || {};
           
-          // Build detailed location string with institution/landmark info
+          // Build accurate location string based on actual address
           const locationParts = [];
           
-          // Add institution/amenity name if available
+          // Add building/place name if available
           if (extratags.name || bestResult.name) {
             locationParts.push(extratags.name || bestResult.name);
           }
           
-          // Add amenity type (like university, school, etc.)
-          if (address.amenity) {
+          // Add amenity type (like university, school, hospital, etc.)
+          if (address.amenity && !locationParts.some(part => part.toLowerCase().includes(address.amenity.toLowerCase()))) {
             locationParts.push(address.amenity);
+          }
+          
+          // Add building type if different from amenity
+          if (address.building && address.building !== address.amenity) {
+            locationParts.push(address.building);
           }
           
           // Add street address
@@ -126,9 +106,10 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
             locationParts.push(address.neighbourhood || address.suburb);
           }
           
-          // Add city/town
-          if (address.city || address.town || address.village) {
-            locationParts.push(address.city || address.town || address.village);
+          // Add city/town/village
+          const city = address.city || address.town || address.village;
+          if (city) {
+            locationParts.push(city);
           }
           
           // Add state
@@ -136,9 +117,10 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
             locationParts.push(address.state);
           }
 
+          // Create clean, readable location name
           const locationName = locationParts.length > 0 
             ? locationParts.join(', ')
-            : bestResult.display_name.split(',').slice(0, 4).join(',');
+            : bestResult.display_name.split(',').slice(0, 3).join(', ');
 
           setResult({
             locationName,
@@ -147,7 +129,7 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
           });
         } else {
           setResult({
-            locationName: 'Unknown Location',
+            locationName: `Coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
             error: null,
             loading: false
           });
@@ -162,7 +144,7 @@ export const useReverseGeocoding = (latitude: number | null, longitude: number |
     };
 
     // Debounce the API call to avoid too many requests
-    const timeoutId = setTimeout(fetchLocationName, 500);
+    const timeoutId = setTimeout(fetchLocationName, 300);
     return () => clearTimeout(timeoutId);
   }, [latitude, longitude]);
 
