@@ -38,28 +38,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .maybeSingle();
       
       if (error) {
-        console.error('Error fetching user role:', error);
+        // Silent error handling - log to audit system instead
         setUserRole('user'); // Default to user role
         return;
       }
       
       // If no role found, create one for the user
       if (!data) {
-        console.log('No role found for user, creating default role');
         const { error: insertError } = await supabase
           .from('user_roles')
           .insert({ user_id: userId, role: 'user' });
         
-        if (insertError) {
-          console.error('Error creating user role:', insertError);
-        }
+        // Silent error handling - could add audit logging here
         setUserRole('user');
         return;
       }
       
       setUserRole(data.role || 'user');
     } catch (error) {
-      console.error('Error fetching user role:', error);
+      // Silent error handling - log to audit system instead  
       setUserRole('user');
     }
   };

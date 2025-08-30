@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useToast } from '@/hooks/use-toast';
 import { Phone, User, UserPlus } from 'lucide-react';
+import { validatePhoneNumber, validateZapierWebhook, sanitizeInput } from '@/utils/validation';
 
 export const UserProfileSetup: React.FC = () => {
   const { profile, updateProfile } = useUserProfile();
@@ -20,10 +21,35 @@ export const UserProfileSetup: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phoneNumber) {
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(formData.name);
+    const sanitizedPhone = sanitizeInput(formData.phoneNumber);
+    const sanitizedWebhook = sanitizeInput(formData.zapierWebhook);
+    
+    if (!sanitizedName || !sanitizedPhone) {
       toast({
         title: 'Required Fields Missing',
         description: 'Please fill in your name and phone number.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate phone number
+    if (!validatePhoneNumber(sanitizedPhone)) {
+      toast({
+        title: 'Invalid Phone Number',
+        description: 'Please enter a valid phone number (10-15 digits).',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate Zapier webhook if provided
+    if (sanitizedWebhook && !validateZapierWebhook(sanitizedWebhook)) {
+      toast({
+        title: 'Invalid Webhook URL',
+        description: 'Please enter a valid Zapier webhook URL.',
         variant: 'destructive'
       });
       return;
@@ -35,10 +61,10 @@ export const UserProfileSetup: React.FC = () => {
     }
 
     updateProfile({
-      name: formData.name,
-      phoneNumber: formData.phoneNumber,
+      name: sanitizedName,
+      phoneNumber: sanitizedPhone,
       emergencyContacts,
-      zapierWebhook: formData.zapierWebhook
+      zapierWebhook: sanitizedWebhook
     });
 
     toast({
@@ -50,9 +76,20 @@ export const UserProfileSetup: React.FC = () => {
   const addEmergencyContact = () => {
     if (!formData.emergencyContact) return;
     
+    const sanitizedContact = sanitizeInput(formData.emergencyContact);
+    
+    if (!validatePhoneNumber(sanitizedContact)) {
+      toast({
+        title: 'Invalid Emergency Contact',
+        description: 'Please enter a valid phone number.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     const emergencyContacts = profile?.emergencyContacts || [];
-    if (!emergencyContacts.includes(formData.emergencyContact)) {
-      emergencyContacts.push(formData.emergencyContact);
+    if (!emergencyContacts.includes(sanitizedContact)) {
+      emergencyContacts.push(sanitizedContact);
       updateProfile({
         name: formData.name,
         phoneNumber: formData.phoneNumber,
