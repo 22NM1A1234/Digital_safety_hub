@@ -242,7 +242,7 @@ export type Database = {
           event_data: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
         }
@@ -251,7 +251,7 @@ export type Database = {
           event_data?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -260,7 +260,7 @@ export type Database = {
           event_data?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -321,10 +321,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_case_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_case_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
